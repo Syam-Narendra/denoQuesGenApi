@@ -12,10 +12,10 @@ const levelMap: any = {
 
 const env = await load();
 
-const resource = env["resource"]
-const deployment = env["deployment"]
-const apiVersion = env["apiVersion"]
-const apiKey = env["apiKey"]
+const resource = Deno.env.get("resource")
+const deployment = Deno.env.get("deployment")
+const apiVersion = Deno.env.get("apiVersion")
+const apiKey = Deno.env.get("apiKey")
 
 export const handler: Handlers = {
   async POST(req, _ctx) {
@@ -23,8 +23,7 @@ export const handler: Handlers = {
     try {
       const openai = new OpenAI({
         apiKey: apiKey,
-        baseURL:
-          `https://${resource}.openai.azure.com/openai/deployments/${deployment}`,
+        baseURL:`https://${resource}.openai.azure.com/openai/deployments/${deployment}`,
         defaultQuery: { "api-version": apiVersion },
         defaultHeaders: { "api-key": apiKey },
       });
