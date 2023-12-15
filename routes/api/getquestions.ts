@@ -3,19 +3,26 @@ import { Handlers } from "https://deno.land/x/fresh@1.6.1/server.ts";
 import { load } from "https://deno.land/std@0.209.0/dotenv/mod.ts";
 import OpenAI from "npm:openai";
 
-const levelMap: any = {
-  1: "basic",
-  2: "medium",
-  3: "high",
-  4: "advanced",
+enum Level {
+  basic,
+  medium,
+  high,
+  advanced,
+}
+
+const levelMap: Record<number, Level> = {
+  1: Level.basic,
+  2: Level.medium,
+  3: Level.high,
+  4: Level.advanced,
 };
 
 const env = await load();
 
-const resource = Deno.env.get("resource")
-const deployment = Deno.env.get("deployment")
-const apiVersion = Deno.env.get("apiVersion")
-const apiKey = Deno.env.get("apiKey")
+const resource = Deno.env.get("resource");
+const deployment = Deno.env.get("deployment");
+const apiVersion = Deno.env.get("apiVersion");
+const apiKey = env["apiKey"];
 
 export const handler: Handlers = {
   async POST(req, _ctx) {
@@ -23,7 +30,8 @@ export const handler: Handlers = {
     try {
       const openai = new OpenAI({
         apiKey: apiKey,
-        baseURL:`https://${resource}.openai.azure.com/openai/deployments/${deployment}`,
+        baseURL:
+          `https://${resource}.openai.azure.com/openai/deployments/${deployment}`,
         defaultQuery: { "api-version": apiVersion },
         defaultHeaders: { "api-key": apiKey },
       });
@@ -37,12 +45,14 @@ export const handler: Handlers = {
         messages: [{ role: "system", content: userPrompt }],
         model: "gpt-3.5-turbo",
       });
-      const questions :any  = await response.choices[0].message.content;
-      return  new Response(questions);
+      const questions: any = await response.choices[0].message.content;
+      return new Response(questions);
     } catch (error) {
-      return new Response(JSON.stringify({
-        error: error.response ? error.response.data : error.message,
-      }));
+      return new Response(
+        JSON.stringify({
+          error: error.response ? error.response.data : error.message,
+        }),
+      );
     }
   },
 };
